@@ -364,8 +364,9 @@
   .fact:last-child{ border-bottom:none; }
   .fact .label{ font-family: "Arial Narrow", "Roboto Condensed", sans-serif; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px; }
   .fact .value{ font-size:14.5px; }
+  .map-links{ display:flex; gap:18px; flex-wrap:wrap; margin-top:8px; }
   .map-link{
-    display:inline-block; margin-top:8px;
+    display:inline-block;
     font-size:12.5px; font-weight:700; color:var(--accent); text-decoration:none;
     font-family: "Arial Narrow", "Roboto Condensed", sans-serif; letter-spacing:0.02em;
   }
@@ -737,7 +738,10 @@
       <div class="fact">
         <div class="label">Address</div>
         <div class="value">658-5, Seongsu-dong 1-ga, Seongdong-gu, Seoul, Korea</div>
-        <a class="map-link" href="https://map.naver.com/p/search/%EC%84%B1%EC%88%98%EB%8F%99%201%EA%B0%80%20658-5?c=14142658.612841377,4515321.996229176,16,0,0,0,dh" target="_blank" rel="noopener">View on Naver Map →</a>
+        <div class="map-links">
+          <a class="map-link" href="https://map.naver.com/p/search/%EC%84%B1%EC%88%98%EB%8F%99%201%EA%B0%80%20658-5?c=14142658.612841377,4515321.996229176,16,0,0,0,dh" target="_blank" rel="noopener">View on Naver Map →</a>
+          <a class="map-link" href="https://www.google.ca/maps/place/%EC%BD%94%EC%82%AC%EC%9D%B4%EC%96%B4%ED%8B%B0/data=!3m1!4b1!4m6!3m5!1s0x357ca576103b268d:0xfadd1ac676d13d6a!8m2!3d37.5447703!4d127.0456715!16s%2Fg%2F11j0v2h8ll?entry=ttu" target="_blank" rel="noopener">View on Google Maps →</a>
+        </div>
       </div>
       <div class="fact">
         <div class="label">Getting There</div>
