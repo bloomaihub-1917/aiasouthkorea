@@ -452,16 +452,14 @@
   .footer-links{ display:flex; gap:20px; }
   .footer-links a{ color:var(--ink-soft); font-size:13px; text-decoration:none; font-family: "Arial Narrow", "Roboto Condensed", sans-serif; font-weight:700; letter-spacing:0.02em; }
   .footer-links a:hover{ color:var(--ink); }
-  .footer-copy{ margin-top:22px; font-size:12px; color:var(--ink-soft); border-top:1px solid var(--line); padding-top:18px; }
-  .footer-contact{ margin-top:18px; display:flex; gap:24px; flex-wrap:wrap; font-size:13px; }
-  .footer-contact div{ display:flex; flex-direction:column; gap:2px; }
-  .footer-contact .label{
-    font-family: "Arial Narrow", "Roboto Condensed", sans-serif;
-    font-size:11px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
-    color:var(--ink-soft);
+  .footer-copy{
+    margin-top:22px; font-size:12px; color:var(--ink-soft);
+    border-top:1px solid var(--line); padding-top:18px;
+    display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px;
   }
-  .footer-contact a{ color:var(--ink); text-decoration:none; font-weight:600; }
-  .footer-contact a:hover{ color:var(--accent); }
+  .footer-copy span:not(:last-child)::after{ content:"·"; margin-left:14px; color:var(--line-strong); }
+  .footer-copy a{ color:var(--ink); text-decoration:none; font-weight:600; }
+  .footer-copy a:hover{ color:var(--accent); }
 
   .nav-right{ display:flex; align-items:center; gap:22px; }
   .lang-switch{
@@ -710,18 +708,10 @@
         <a href="#registration">Registration</a>
       </div>
     </div>
-    <div class="footer-contact">
-      <div>
-        <span class="label">AIA South Korea Section</span>
-        <a href="mailto:aia.southkorea@aiainternational.org">aia.southkorea@aiainternational.org</a>
-      </div>
-      <div>
-        <span class="label">운영사무국</span>
-        <a href="mailto:aia@13100m.net">aia@13100m.net</a>
-      </div>
-    </div>
     <div class="footer-copy">
-      © 2026 AIA South Korea Section. All rights reserved.
+      <span>© 2026 AIA South Korea Section. All rights reserved.</span>
+      <span>AIA South Korea Section: <a href="mailto:aia.southkorea@aiainternational.org">aia.southkorea@aiainternational.org</a></span>
+      <span>운영사무국: <a href="mailto:aia@13100m.net">aia@13100m.net</a></span>
     </div>
   </div>
 </footer>
