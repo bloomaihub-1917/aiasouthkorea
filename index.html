@@ -318,18 +318,15 @@
   }
 
   .session-plain{
-    display:grid; grid-template-columns:104px 280px 1fr;
+    display:grid; grid-template-columns:104px 1fr;
     gap:16px; padding:15px 0; border-bottom:1px solid var(--line);
     font-size:14.5px;
   }
   .session-plain .time{ font-variant-numeric:tabular-nums; white-space:nowrap; color:var(--ink-soft); font-weight:700; }
-  .session-plain .prog{ font-weight:700; color:var(--ink-soft); }
-  @media (max-width:640px){ .session-plain{ grid-template-columns:80px 1fr; } .session-plain .desc{ display:none; } }
-  .session-speakers{
-    grid-column:3; margin-top:-6px; padding-bottom:15px;
-    font-size:12.5px; color:var(--ink-soft); opacity:0.85;
-  }
-  @media (max-width:640px){ .session-speakers{ grid-column:2; } }
+  .session-content{ display:flex; flex-direction:column; gap:4px; }
+  .session-content .prog{ font-weight:700; color:var(--ink-soft); }
+  .session-content .desc{ color:var(--ink); }
+  @media (max-width:640px){ .session-plain{ grid-template-columns:80px 1fr; } }
 
   .tba-pill{
     display:inline-block; font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
@@ -594,43 +591,56 @@
 
     <div class="sessionlist">
       <div class="session-plain">
-        <span class="time">09:00–09:30</span><span class="prog">Registration</span><span class="desc"></span>
+        <span class="time">09:00–09:30</span>
+        <div class="session-content"><span class="prog">Registration</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">09:30–10:00</span><span class="prog">Opening Remarks</span><span class="desc">Welcome to Seoul: Global Cities, Local Cultures</span>
+        <span class="time">09:30–10:00</span>
+        <div class="session-content"><span class="prog">Opening Remarks</span><span class="desc">Welcome to Seoul: Global Cities, Local Cultures</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">10:00–11:00</span><span class="prog">Opening Keynote</span><span class="desc">Learning from Seoul – Why Seoul Cannot Be Told as One Story</span>
+        <span class="time">10:00–11:00</span>
+        <div class="session-content"><span class="prog">Opening Keynote</span><span class="desc">Learning from Seoul – Why Seoul Cannot Be Told as One Story</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">11:00–11:15</span><span class="prog">Coffee Break</span><span class="desc"></span>
+        <span class="time">11:00–11:15</span>
+        <div class="session-content"><span class="prog">Coffee Break</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">11:15–12:30</span><span class="prog">Session 1A — Adaptive Cities</span><span class="desc">Reuse, renovation, and the future of existing buildings</span>
+        <span class="time">11:15–12:30</span>
+        <div class="session-content"><span class="prog">Session 1A — Adaptive Cities</span><span class="desc">Reuse, renovation, and the future of existing buildings</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">11:15–12:30</span><span class="prog">Session 1B — Architects in New Territories</span><span class="desc">Virtual space, speculative practice, and new forms of architectural agency</span>
+        <span class="time">11:15–12:30</span>
+        <div class="session-content"><span class="prog">Session 1B — Architects in New Territories</span><span class="desc">Virtual space, speculative practice, and new forms of architectural agency</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">12:30–13:40</span><span class="prog">Lunch &amp; Networking</span><span class="desc"></span>
+        <span class="time">12:30–13:40</span>
+        <div class="session-content"><span class="prog">Lunch &amp; Networking</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">13:40–14:55</span><span class="prog">Session 2A — Superlocal Architecture</span><span class="desc">Korean superlocal: rethinking regional identity in contemporary practice</span>
+        <span class="time">13:40–14:55</span>
+        <div class="session-content"><span class="prog">Session 2A — Superlocal Architecture</span><span class="desc">Korean superlocal: rethinking regional identity in contemporary practice</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">13:40–14:55</span><span class="prog">Session 2B — Beautiful, Green, Affordable? <span class="sponsor-tag">★ Sponsor: North Glass</span></span><span class="desc">Three pressures, one skin — the façade we wanted</span>
+        <span class="time">13:40–14:55</span>
+        <div class="session-content"><span class="prog">Session 2B — Beautiful, Green, Affordable? <span class="sponsor-tag">★ Sponsor: North Glass</span></span><span class="desc">Three pressures, one skin — the façade we wanted</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">14:55–15:10</span><span class="prog">Coffee Break</span><span class="desc"></span>
+        <span class="time">14:55–15:10</span>
+        <div class="session-content"><span class="prog">Coffee Break</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">15:10–16:10</span><span class="prog">Closing Keynote</span><span class="desc">Local Cultures, Global Lessons — What Can Architects Learn Across Cities?</span>
+        <span class="time">15:10–16:10</span>
+        <div class="session-content"><span class="prog">Closing Keynote</span><span class="desc">Local Cultures, Global Lessons — What Can Architects Learn Across Cities?</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">16:10–16:30</span><span class="prog">Closing Reflection</span><span class="desc">What Are We Learning from Seoul?</span>
+        <span class="time">16:10–16:30</span>
+        <div class="session-content"><span class="prog">Closing Reflection</span><span class="desc">What Are We Learning from Seoul?</span></div>
       </div>
       <div class="session-plain">
-        <span class="time">17:00 ~</span><span class="prog">Gala Dinner</span><span class="desc"></span>
+        <span class="time">17:00 ~</span>
+        <div class="session-content"><span class="prog">Gala Dinner</span></div>
       </div>
     </div>
     <p class="sheet-desc" style="margin-top:14px;">세부 연사 정보는 확정되는 대로 별도 안내드립니다.</p>
