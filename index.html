@@ -87,8 +87,13 @@
 
   /* ---------- LOGO LOCKUP ---------- */
   .lockup{ display:flex; align-items:center; gap:14px; text-decoration:none; }
-  .lockup .logo-img{
-    height:48px; width:auto; display:block;
+  .lockup .logo-img{ height:48px; width:auto; display:block; }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]) .lockup .logo-img{
+      background:#fff; border-radius:8px; padding:6px 10px;
+    }
+  }
+  :root[data-theme="dark"] .lockup .logo-img{
     background:#fff; border-radius:8px; padding:6px 10px;
   }
 
