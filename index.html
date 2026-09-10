@@ -87,15 +87,10 @@
 
   /* ---------- LOGO LOCKUP ---------- */
   .lockup{ display:flex; align-items:center; gap:14px; text-decoration:none; }
-  .lockup .badge{
-    width:54px; height:54px; border-radius:50%; background:var(--accent);
-    color:#fff; display:flex; align-items:center; justify-content:center;
-    font-size:16px; font-weight:800; letter-spacing:0.02em; flex-shrink:0;
-    font-family: "Arial Narrow", "Roboto Condensed", sans-serif;
+  .lockup .logo-img{
+    height:48px; width:auto; display:block;
+    background:#fff; border-radius:8px; padding:6px 10px;
   }
-  .lockup .word{ font-size:26px; font-weight:800; letter-spacing:0.01em; }
-  .lockup.on-dark .word{ color:#fff; }
-  .lockup.on-paper .word{ color:var(--ink); }
 
   /* ---------- NAV ---------- */
   .topnav{
@@ -480,8 +475,7 @@
 <nav class="topnav">
   <div class="topnav-inner">
     <a href="#top" class="lockup on-paper">
-      <span class="badge">AIA</span>
-      <span class="word">South Korea</span>
+      <img class="logo-img" src="/images/logo-aia-southkorea.jpg" alt="AIA South Korea">
     </a>
     <div class="nav-right">
       <div class="navlinks">
@@ -718,7 +712,7 @@
 <footer>
   <div class="wrap">
     <div class="footer-row">
-      <span class="lockup on-paper"><span class="badge">AIA</span><span class="word">South Korea</span></span>
+      <span class="lockup on-paper"><img class="logo-img" src="/images/logo-aia-southkorea.jpg" alt="AIA South Korea"></span>
       <div class="footer-links">
         <a href="#about">About</a>
         <a href="#program">Program</a>
