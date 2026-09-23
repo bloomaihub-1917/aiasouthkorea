@@ -41,7 +41,7 @@
 
 <script>
 // 좌표는 근사치 — 게시 전 실제 주소로 확인 필요
-const VENUE = {name:"COSOCIETY (Venue)", lat:37.5446, lng:127.0557, addr:"Seongsu-dong, Seongdong-gu, Seoul"};
+const VENUE = {name:"Cociety (Venue)", lat:37.5456157, lng:127.0447497, addr:"82-20 Wangsimni-ro, Seongdong-gu, Seoul"};
 const HOTELS = [
   {name:"Aloft Seoul Gangnam", grade:"4★ Marriott", addr:"736 Yeongdong-daero, Gangnam-gu", lat:37.5236, lng:127.0569, img:"images/aloft-seoul-gangnam.jpg", url:"https://www.marriott.com/hotels/travel/selal-aloft-seoul-gangnam/"},
   {name:"Grand InterContinental Seoul Parnas", grade:"5★ IHG", addr:"521 Teheran-ro, Gangnam-gu (COEX)", lat:37.5090, lng:127.0606, img:"images/grand-intercontinental-parnas.jpg", url:"https://www.ihg.com/intercontinental/hotels/us/en/seoul/selhb/hoteldetail"},
@@ -66,7 +66,11 @@ const pinIcon = (color,size) => ({
 function initMap(){
   const map = new google.maps.Map(document.getElementById('map'),{
     center:{lat:VENUE.lat,lng:VENUE.lng}, zoom:12, gestureHandling:'cooperative',
-    mapTypeControl:false, streetViewControl:false, fullscreenControl:true
+    mapTypeControl:false, streetViewControl:false, fullscreenControl:true,
+    styles:[
+      {featureType:'poi', stylers:[{visibility:'off'}]},
+      {featureType:'transit', elementType:'labels.icon', stylers:[{visibility:'off'}]}
+    ]
   });
   const info = new google.maps.InfoWindow({maxWidth:260});
   const bounds = new google.maps.LatLngBounds();
@@ -92,8 +96,14 @@ function initMap(){
       document.querySelectorAll('.item').forEach(x=>x.classList.remove('on')); el.classList.add('on');
       info.setContent(html); info.open({map,anchor:m});
     };
-    m.addListener('click',open);
-    el.onclick = ()=>{ map.panTo(m.getPosition()); map.setZoom(15); open(); };
+    const focus = ()=>{
+      const pairBounds = new google.maps.LatLngBounds();
+      pairBounds.extend(VENUE); pairBounds.extend(m.getPosition());
+      map.fitBounds(pairBounds,80);
+      open();
+    };
+    m.addListener('click',focus);
+    el.onclick = focus;
     list.appendChild(el);
   });
   map.fitBounds(bounds,40);
