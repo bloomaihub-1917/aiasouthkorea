@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Accommodation</title>
+<style>
+  :root{--bg:#fff;--ink:#1a1a1a;--muted:#6b6b6b;--line:#e5e5e5;--accent:#c8102e;--card:#fafafa}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Pretendard",-apple-system,"Segoe UI",sans-serif}
+  .wrap{max-width:1200px;margin:0 auto;padding:48px 16px}
+  h2{font-size:28px;margin:0 0 6px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0 0 24px;font-size:15px}
+  .layout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:600px}
+  .list{overflow-y:auto;border:1px solid var(--line);border-radius:10px}
+  .item{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}
+  .item:hover,.item.on{background:var(--card)}
+  .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+  .item b{display:block;font-size:14px}
+  .item span{font-size:12px;color:var(--muted)}
+  #map{border-radius:10px;border:1px solid var(--line)}
+  .pop{width:240px;font-family:inherit}
+  .pop .img{height:130px;margin:0 0 10px;background:#ddd center/cover;border-radius:8px;display:grid;place-items:center;color:#999;font-size:12px}
+  .pop h4{margin:0 0 4px;font-size:15px}
+  .pop .tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;background:#f0f0f0;margin-bottom:6px}
+  .pop p{margin:2px 0;font-size:12px;color:var(--muted)}
+  .pop a.btn{display:inline-block;margin-top:8px;padding:6px 12px;background:var(--ink);color:#fff;border-radius:6px;text-decoration:none;font-size:12px}
+  .gm-style .gm-style-iw-c{padding:12px!important}
+  @media (max-width:760px){.layout{grid-template-columns:1fr;height:auto}#map{height:420px;order:-1}.list{max-height:320px}}
+</style>
+</head>
+<body>
+<section class="wrap" id="accommodation">
+  <h2>Accommodation</h2>
+  <p class="sub">Recommended hotels near the venue. Click a marker or a hotel name for details.</p>
+  <div class="layout">
+    <div class="list" id="list"></div>
+    <div id="map"></div>
+  </div>
+</section>
+
+<script>
+// 좌표는 근사치 — 게시 전 실제 주소로 확인 필요
+const VENUE = {name:"COSOCIETY (Venue)", lat:37.5446, lng:127.0557, addr:"Seongsu-dong, Seongdong-gu, Seoul"};
+const HOTELS = [
+  {name:"Aloft Seoul Gangnam", grade:"4★ Marriott", addr:"736 Yeongdong-daero, Gangnam-gu", lat:37.5236, lng:127.0569, img:"images/aloft-seoul-gangnam.jpg", url:"https://www.marriott.com/hotels/travel/selal-aloft-seoul-gangnam/"},
+  {name:"Grand InterContinental Seoul Parnas", grade:"5★ IHG", addr:"521 Teheran-ro, Gangnam-gu (COEX)", lat:37.5090, lng:127.0606, img:"images/grand-intercontinental-parnas.jpg", url:"https://www.ihg.com/intercontinental/hotels/us/en/seoul/selhb/hoteldetail"},
+  {name:"InterContinental Seoul COEX", grade:"5★ IHG", addr:"524 Bongeunsa-ro, Gangnam-gu", lat:37.5127, lng:127.0567, img:"images/intercontinental-coex.jpg", url:"https://www.ihg.com/intercontinental/hotels/us/en/seoul/selcx/hoteldetail"},
+  {name:"Oakwood Premier Coex Center", grade:"5★ Serviced Residence", addr:"46 Teheran-ro 87-gil, Gangnam-gu", lat:37.5109, lng:127.0576, img:"images/oakwood-premier-coex.jpg", url:"https://www.discoverasr.com/en/oakwood/korea-south/oakwood-premier-coex-center-seoul"},
+  {name:"Grand Hyatt Seoul", grade:"5★ Hyatt", addr:"322 Sowol-ro, Yongsan-gu", lat:37.5393, lng:126.9971, img:"images/grand-hyatt.jpg", url:"https://www.hyatt.com/grand-hyatt/en-US/selrs-grand-hyatt-seoul"},
+  {name:"Shilla Stay Yeoksam", grade:"Business", addr:"517 Eonju-ro, Gangnam-gu", lat:37.5036, lng:127.0431, img:"images/shilla-stay-yeoksam.jpg", url:"https://www.shillahotels.com/"},
+  {name:"The Westin Josun Seoul", grade:"5★ Marriott", addr:"106 Sogong-ro, Jung-gu", lat:37.5647, lng:126.9803, img:"images/westin-josun.jpg", url:"https://www.marriott.com/hotels/travel/selwi-the-westin-josun-seoul/"},
+  {name:"Pullman Ambassador Seoul Eastpole", grade:"5★ Accor", addr:"Guui Station, Gwangjin-gu", lat:37.5371, lng:127.0858, img:"images/pullman-eastpole.jpg", url:"https://all.accor.com/hotel/C173/index.en.shtml"},
+];
+
+const km = (a,b) => { const R=6371,r=Math.PI/180,dLa=(b.lat-a.lat)*r,dLo=(b.lng-a.lng)*r;
+  const x=Math.sin(dLa/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)**2; return (2*R*Math.asin(Math.sqrt(x))).toFixed(1); };
+
+// 번호 핀 (SVG 원형 마커)
+const pinIcon = (color,size) => ({
+  url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}"><circle cx="${size/2}" cy="${size/2}" r="${size/2-2}" fill="${color}" stroke="#fff" stroke-width="2"/></svg>`),
+  scaledSize:new google.maps.Size(size,size), anchor:new google.maps.Point(size/2,size/2), labelOrigin:new google.maps.Point(size/2,size/2)
+});
+
+function initMap(){
+  const map = new google.maps.Map(document.getElementById('map'),{
+    center:{lat:VENUE.lat,lng:VENUE.lng}, zoom:12, gestureHandling:'cooperative',
+    mapTypeControl:false, streetViewControl:false, fullscreenControl:true
+  });
+  const info = new google.maps.InfoWindow({maxWidth:260});
+  const bounds = new google.maps.LatLngBounds();
+
+  const venue = new google.maps.Marker({position:VENUE, map, zIndex:1000, title:VENUE.name,
+    icon:pinIcon('#c8102e',36), label:{text:'★',color:'#fff',fontSize:'16px',fontWeight:'700'}});
+  venue.addListener('click',()=>{ info.setContent(`<div class="pop"><h4>${VENUE.name}</h4><p>${VENUE.addr}</p></div>`); info.open({map,anchor:venue}); });
+  bounds.extend(VENUE);
+
+  const list = document.getElementById('list');
+  HOTELS.forEach((h,i)=>{
+    const img = h.img ? `<div class="img" style="background-image:url('${h.img}')"></div>` : `<div class="img">Image coming soon</div>`;
+    const html = `<div class="pop">${img}<span class="tag">${h.grade}</span><h4>${h.name}</h4>
+      <p>${h.addr}</p><p>≈ ${km(h,VENUE)} km from venue</p>
+      <a class="btn" href="${h.url}" target="_blank" rel="noopener">Official website ↗</a></div>`;
+    const m = new google.maps.Marker({position:{lat:h.lat,lng:h.lng}, map, title:h.name,
+      icon:pinIcon('#1a1a1a',28), label:{text:String(i+1),color:'#fff',fontSize:'12px',fontWeight:'700'}});
+    bounds.extend(m.getPosition());
+
+    const el = document.createElement('div'); el.className='item';
+    el.innerHTML = `<div class="num">${i+1}</div><div><b>${h.name}</b><span>${h.grade} · ${km(h,VENUE)} km</span></div>`;
+    const open = ()=>{
+      document.querySelectorAll('.item').forEach(x=>x.classList.remove('on')); el.classList.add('on');
+      info.setContent(html); info.open({map,anchor:m});
+    };
+    m.addListener('click',open);
+    el.onclick = ()=>{ map.panTo(m.getPosition()); map.setZoom(15); open(); };
+    list.appendChild(el);
+  });
+  map.fitBounds(bounds,40);
+}
+</script>
+<!-- Google Maps API 키 (도메인 리퍼러 제한 적용) -->
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC6LaaYgB5NNFYpNYyNe6qDatlMGujMFks&loading=async&callback=initMap&language=en&region=KR"></script>
+</body>
+</html>
