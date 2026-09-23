@@ -11,21 +11,22 @@
   .wrap{max-width:1200px;margin:0 auto;padding:48px 16px}
   h2{font-size:28px;margin:0 0 6px;letter-spacing:-.01em}
   .sub{color:var(--muted);margin:0 0 24px;font-size:15px}
-  .layout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:600px}
-  .list{overflow-y:auto;border:1px solid var(--line);border-radius:10px}
-  .item{display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);cursor:pointer}
-  .item:hover,.item.on{background:var(--card)}
+  .layout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:600px;max-width:100%}
+  .list{overflow-y:auto;overflow-x:hidden;border:1px solid var(--line);border-radius:10px}
+  .item{border-bottom:1px solid var(--line)}
+  .item-head{display:flex;gap:12px;align-items:center;padding:12px 14px;cursor:pointer}
+  .item-head:hover,.item.on .item-head{background:var(--card)}
   .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
-  .item b{display:block;font-size:14px}
-  .item span{font-size:12px;color:var(--muted)}
+  .item-head b{display:block;font-size:14px}
+  .item-head span{font-size:12px;color:var(--muted)}
+  .item-body{max-height:0;overflow:hidden;transition:max-height .25s ease}
+  .item.on .item-body{max-height:420px}
+  .item-body-inner{padding:0 14px 14px}
+  .item-body .img{height:130px;margin:0 0 10px;background:#ddd center/cover;border-radius:8px;display:grid;place-items:center;color:#999;font-size:12px}
+  .item-body .tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;background:#f0f0f0;margin-bottom:6px}
+  .item-body p{margin:2px 0;font-size:12px;color:var(--muted)}
+  .item-body a.btn{display:inline-block;margin-top:8px;padding:6px 12px;background:var(--ink);color:#fff;border-radius:6px;text-decoration:none;font-size:12px}
   #map{border-radius:10px;border:1px solid var(--line)}
-  .pop{width:240px;font-family:inherit}
-  .pop .img{height:130px;margin:0 0 10px;background:#ddd center/cover;border-radius:8px;display:grid;place-items:center;color:#999;font-size:12px}
-  .pop h4{margin:0 0 4px;font-size:15px}
-  .pop .tag{display:inline-block;font-size:11px;padding:2px 7px;border-radius:99px;background:#f0f0f0;margin-bottom:6px}
-  .pop p{margin:2px 0;font-size:12px;color:var(--muted)}
-  .pop a.btn{display:inline-block;margin-top:8px;padding:6px 12px;background:var(--ink);color:#fff;border-radius:6px;text-decoration:none;font-size:12px}
-  .gm-style .gm-style-iw-c{padding:12px!important}
   @media (max-width:760px){.layout{grid-template-columns:1fr;height:auto}#map{height:420px;order:-1}.list{max-height:320px}}
 </style>
 </head>
@@ -56,24 +57,6 @@ const HOTELS = [
 const km = (a,b) => { const R=6371,r=Math.PI/180,dLa=(b.lat-a.lat)*r,dLo=(b.lng-a.lng)*r;
   const x=Math.sin(dLa/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)**2; return (2*R*Math.asin(Math.sqrt(x))).toFixed(1); };
 
-// popup을 주변의 모든 핀(행사장 + 다른 호텔)에서 밀어내는 방향으로 열어서,
-// 가까이 몰려있는 핀이라도 서로의 번호를 가리지 않게 함
-const repelOffset = (target) => {
-  const others = [VENUE, ...HOTELS].filter(p => p !== target);
-  let vx = 0, vy = 0;
-  others.forEach(p => {
-    const dLng = target.lng - p.lng, dLat = target.lat - p.lat;
-    const distSq = dLng * dLng + dLat * dLat || 1e-8;
-    const w = 1 / distSq; // 가까운 핀일수록 더 세게 밀어냄
-    vx += dLng * w;
-    vy += -dLat * w; // 위도가 클수록(북쪽) 화면상 y는 감소
-  });
-  const len = Math.hypot(vx, vy) || 1;
-  const ux = vx / len, uy = vy / len;
-  const OFFSET = 110;
-  return new google.maps.Size(ux * OFFSET, uy * OFFSET - 20);
-};
-
 // 번호 핀 (SVG 원형 마커)
 const pinIcon = (color,size) => ({
   url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(
@@ -90,38 +73,46 @@ function initMap(){
       {featureType:'transit', elementType:'labels.icon', stylers:[{visibility:'off'}]}
     ]
   });
-  const info = new google.maps.InfoWindow({maxWidth:260});
   const bounds = new google.maps.LatLngBounds();
 
-  const venue = new google.maps.Marker({position:VENUE, map, zIndex:1000, title:VENUE.name,
+  const venue = new google.maps.Marker({position:VENUE, map, zIndex:1000, title:`${VENUE.name} — ${VENUE.addr}`,
     icon:pinIcon('#c8102e',36), label:{text:'★',color:'#fff',fontSize:'16px',fontWeight:'700'}});
-  venue.addListener('click',()=>{ info.setContent(`<div class="pop"><h4>${VENUE.name}</h4><p>${VENUE.addr}</p></div>`); info.setOptions({pixelOffset:repelOffset(VENUE)}); info.open({map,anchor:venue}); });
   bounds.extend(VENUE);
 
   const list = document.getElementById('list');
   HOTELS.forEach((h,i)=>{
     const img = h.img ? `<div class="img" style="background-image:url('${h.img}')"></div>` : `<div class="img">Image coming soon</div>`;
-    const html = `<div class="pop">${img}<span class="tag">${h.grade}</span><h4>${h.name}</h4>
-      <p>${h.addr}</p><p>≈ ${km(h,VENUE)} km from venue</p>
-      <a class="btn" href="${h.url}" target="_blank" rel="noopener">Official website ↗</a></div>`;
     const m = new google.maps.Marker({position:{lat:h.lat,lng:h.lng}, map, title:h.name,
       icon:pinIcon('#1a1a1a',28), label:{text:String(i+1),color:'#fff',fontSize:'12px',fontWeight:'700'}});
     bounds.extend(m.getPosition());
 
     const el = document.createElement('div'); el.className='item';
-    el.innerHTML = `<div class="num">${i+1}</div><div><b>${h.name}</b><span>${h.grade} · ${km(h,VENUE)} km</span></div>`;
-    const open = ()=>{
-      document.querySelectorAll('.item').forEach(x=>x.classList.remove('on')); el.classList.add('on');
-      info.setContent(html); info.setOptions({pixelOffset:repelOffset(h)}); info.open({map,anchor:m});
-    };
+    el.innerHTML = `
+      <div class="item-head">
+        <div class="num">${i+1}</div>
+        <div><b>${h.name}</b><span>${h.grade} · ${km(h,VENUE)} km</span></div>
+      </div>
+      <div class="item-body"><div class="item-body-inner">
+        ${img}
+        <span class="tag">${h.grade}</span>
+        <p>${h.addr}</p>
+        <p>≈ ${km(h,VENUE)} km from venue</p>
+        <a class="btn" href="${h.url}" target="_blank" rel="noopener">Official website ↗</a>
+      </div></div>`;
+
     const focus = ()=>{
-      const pairBounds = new google.maps.LatLngBounds();
-      pairBounds.extend(VENUE); pairBounds.extend(m.getPosition());
-      map.fitBounds(pairBounds,80);
-      open();
+      const alreadyOn = el.classList.contains('on');
+      document.querySelectorAll('.item').forEach(x=>x.classList.remove('on'));
+      if(!alreadyOn){
+        el.classList.add('on');
+        el.scrollIntoView({block:'nearest', behavior:'smooth'});
+        const pairBounds = new google.maps.LatLngBounds();
+        pairBounds.extend(VENUE); pairBounds.extend(m.getPosition());
+        map.fitBounds(pairBounds,80);
+      }
     };
     m.addListener('click',focus);
-    el.onclick = focus;
+    el.querySelector('.item-head').onclick = focus;
     list.appendChild(el);
   });
   map.fitBounds(bounds,40);
