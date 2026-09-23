@@ -16,7 +16,8 @@
   .item{border-bottom:1px solid var(--line)}
   .item-head{display:flex;gap:12px;align-items:center;padding:12px 14px;cursor:pointer}
   .item-head:hover,.item.on .item-head{background:var(--card)}
-  .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+  .num{flex:none;width:26px;height:26px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center;transition:background .15s ease}
+  .item.on .num{background:var(--accent)}
   .item-head b{display:block;font-size:14px}
   .item-head span{font-size:12px;color:var(--muted)}
   .item-body{max-height:0;overflow:hidden;transition:max-height .25s ease}
@@ -80,11 +81,16 @@ function initMap(){
   bounds.extend(VENUE);
 
   const list = document.getElementById('list');
+  const markers = [];
+  const resetMarkers = ()=>{
+    markers.forEach(mk=>{ mk.setIcon(pinIcon('#1a1a1a',28)); mk.setZIndex(100); });
+  };
   HOTELS.forEach((h,i)=>{
     const img = h.img ? `<div class="img" style="background-image:url('${h.img}')"></div>` : `<div class="img">Image coming soon</div>`;
-    const m = new google.maps.Marker({position:{lat:h.lat,lng:h.lng}, map, title:h.name,
+    const m = new google.maps.Marker({position:{lat:h.lat,lng:h.lng}, map, title:h.name, zIndex:100,
       icon:pinIcon('#1a1a1a',28), label:{text:String(i+1),color:'#fff',fontSize:'12px',fontWeight:'700'}});
     bounds.extend(m.getPosition());
+    markers.push(m);
 
     const el = document.createElement('div'); el.className='item';
     el.innerHTML = `
@@ -103,8 +109,11 @@ function initMap(){
     const focus = ()=>{
       const alreadyOn = el.classList.contains('on');
       document.querySelectorAll('.item').forEach(x=>x.classList.remove('on'));
+      resetMarkers();
       if(!alreadyOn){
         el.classList.add('on');
+        m.setIcon(pinIcon('#c8102e',32));
+        m.setZIndex(500);
         el.scrollIntoView({block:'nearest', behavior:'smooth'});
         const pairBounds = new google.maps.LatLngBounds();
         pairBounds.extend(VENUE); pairBounds.extend(m.getPosition());
