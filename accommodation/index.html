@@ -58,6 +58,35 @@ const HOTELS = [
 const km = (a,b) => { const R=6371,r=Math.PI/180,dLa=(b.lat-a.lat)*r,dLo=(b.lng-a.lng)*r;
   const x=Math.sin(dLa/2)**2+Math.cos(a.lat*r)*Math.cos(b.lat*r)*Math.sin(dLo/2)**2; return (2*R*Math.asin(Math.sqrt(x))).toFixed(1); };
 
+// 지도 상에서만 쓰는 핀 위치 계산 — 서로 너무 가까운 호텔은 살짝 벌려서
+// 번호가 겹쳐 보이지 않게 함 (거리 표기·상세정보는 원래 좌표 그대로 사용)
+function spreadOverlappingPins(points, thresholdDeg = 0.006, radiusDeg = 0.0022){
+  const used = new Array(points.length).fill(false);
+  const groups = [];
+  for(let i=0;i<points.length;i++){
+    if(used[i]) continue;
+    const group=[i]; used[i]=true;
+    for(let j=i+1;j<points.length;j++){
+      if(used[j]) continue;
+      const d = Math.hypot(points[i].lat-points[j].lat, points[i].lng-points[j].lng);
+      if(d < thresholdDeg){ group.push(j); used[j]=true; }
+    }
+    groups.push(group);
+  }
+  const out = points.map(p=>({lat:p.lat, lng:p.lng}));
+  groups.forEach(group=>{
+    if(group.length < 2) return;
+    const clat = group.reduce((s,i)=>s+points[i].lat,0) / group.length;
+    const clng = group.reduce((s,i)=>s+points[i].lng,0) / group.length;
+    group.forEach((idx,k)=>{
+      const angle = (2*Math.PI*k)/group.length;
+      out[idx].lat = clat + radiusDeg*Math.sin(angle);
+      out[idx].lng = clng + (radiusDeg*Math.cos(angle))/Math.cos(clat*Math.PI/180);
+    });
+  });
+  return out;
+}
+
 // 번호 핀 (SVG 원형 마커)
 const pinIcon = (color,size) => ({
   url:'data:image/svg+xml;charset=UTF-8,'+encodeURIComponent(
@@ -85,9 +114,10 @@ function initMap(){
   const resetMarkers = ()=>{
     markers.forEach(mk=>{ mk.setIcon(pinIcon('#1a1a1a',28)); mk.setZIndex(100); });
   };
+  const pinPositions = spreadOverlappingPins(HOTELS);
   HOTELS.forEach((h,i)=>{
     const img = h.img ? `<div class="img" style="background-image:url('${h.img}')"></div>` : `<div class="img">Image coming soon</div>`;
-    const m = new google.maps.Marker({position:{lat:h.lat,lng:h.lng}, map, title:h.name, zIndex:100,
+    const m = new google.maps.Marker({position:pinPositions[i], map, title:h.name, zIndex:100,
       icon:pinIcon('#1a1a1a',28), label:{text:String(i+1),color:'#fff',fontSize:'12px',fontWeight:'700'}});
     bounds.extend(m.getPosition());
     markers.push(m);
